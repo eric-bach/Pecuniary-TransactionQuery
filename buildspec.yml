@@ -1,0 +1,24 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - dotnet restore src/Pecuniary.Account.Events/Pecuniary.Account.Events.csproj
+      - dotnet restore src/Pecuniary.Account.Query/Pecuniary.Account.Query.csproj
+  build:
+    commands:
+      - dotnet publish src/Pecuniary.Account.Events/Pecuniary.Account.Events.csproj
+      - dotnet publish src/Pecuniary.Account.Query/Pecuniary.Account.Query.csproj
+  post_build:
+    commands:
+      #- dotnet vstest test/Ama.Rewards.Loyalty.WebApi.Balance.Tests/bin/Debug/netcoreapp2.1/publish/Ama.Rewards.Loyalty.WebApi.Balance.Tests.dll
+
+      - aws cloudformation package --template-file samTemplate.yaml --s3-bucket codepipeline-pecuniary-115499684434-us-west-2 --output-template-file outputSamTemplate.yaml
+artifacts:
+  files:
+    - samTemplate.yaml
+    - outputSamTemplate.yaml
+    - stage.json
+    #- prod.json
+
+    - src/Pecuniary.Account.Events/bin/**/*
+    - src/Pecuniary.Account.Query/bin/**/*
