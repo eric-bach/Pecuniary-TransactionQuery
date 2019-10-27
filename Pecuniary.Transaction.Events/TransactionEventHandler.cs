@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using EricBach.LambdaLogger;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Pecuniary.Transaction.Data.ViewModels;
-using static Pecuniary.Transaction.Events.Function;
+using Pecuniary.Transaction.Events.ViewModels;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -19,6 +20,7 @@ namespace Pecuniary.Transaction.Events
 {
     public class Function
     {
+        private static readonly string ElasticSearchDomain = Environment.GetEnvironmentVariable("ElasticSearchDomain");
         private readonly TransactionQueryService _transactionQueryService;
 
         public Function()
@@ -39,19 +41,17 @@ namespace Pecuniary.Transaction.Events
         {
             Logger.Log($"Received {message.Records.Count} records");
 
-            var elasticSearchDomain = Environment.GetEnvironmentVariable("ElasticSearchDomain");
-            Logger.Log("Found ElasticSearchDomain");
-
             foreach (var record in message.Records)
             {
                 Logger.Log($"Received message {record.Sns.Message}");
+                
+                Logger.Log("Adding Transaction document");
+                var transactionResponse = await _transactionQueryService.AddTransactionModel(record.Sns.Message);
+                Logger.Log("Update Account with Transaction Document");
+                var accountTransactionResponse = await _transactionQueryService.UpdateAccountTransactionModel(record.Sns.Message);
 
-                // Denormalize event based on EventType
-                //dynamic obj = DeserializeMessage(record.Sns.Message);
-
-                var response = await _transactionQueryService.AddOrUpdateAsync(record.Sns.Message);
-
-                Logger.Log($"Result: {response.Result}");
+                Logger.Log($"Add Transaction Result: {JsonConvert.SerializeObject(transactionResponse)}");
+                Logger.Log($"Update Account Result: {JsonConvert.SerializeObject(accountTransactionResponse)}");
             }
 
             Logger.Log($"Completed processing {message.Records.Count} records");
@@ -66,8 +66,45 @@ namespace Pecuniary.Transaction.Events
                 _repository = repository;
             }
 
-            public async Task<ElasticSearchResponse> AddOrUpdateAsync(string message)
+            public async Task<ElasticSearchResponse> UpdateAccountTransactionModel(string message)
             {
+                const string index = "account";
+
+                Logger.Log("Updating document to ElasticSearch");
+
+                // Get the event name from the message
+                var eventName = Regex.Matches(message, @"EventName"":[\s]*""([a-zA-Z)]+)").First().Groups.Last().Value;
+                Logger.Log($"Event Name: {eventName}");
+
+                // Dynamically convert deserialized event to event type
+                dynamic request = JsonConvert.DeserializeObject(message, Type.GetType(eventName));
+                var accountId = request.Transaction.AccountId.ToString();
+                Logger.Log($"Event Id: {accountId}");
+                Logger.Log($"Event Index: {index}");
+
+                var data = new AccountTransactionViewModel
+                {
+                    Doc = new AccountTransactionDocument
+                    {
+                        Transactions = new List<AccountTransaction>
+                        {
+                            new AccountTransaction
+                            {
+                                Transaction = request.Transaction.ToString()
+                            }
+                        }
+                    }
+                };
+                Logger.Log($"Partial Document: {JsonConvert.SerializeObject(data)}");
+
+                Logger.Log($"Sending document {accountId} to ElasticSearch {ElasticSearchDomain}");
+                return await _repository.UpdateAsync(ElasticSearchDomain, index, accountId, JsonConvert.SerializeObject(data));
+            }
+
+            public async Task<ElasticSearchResponse> AddTransactionModel(string message)
+            {
+                Logger.Log("Adding document to ElasticSearch");
+
                 // Get the event name from the message
                 var eventName = Regex.Matches(message, @"EventName"":[\s]*""([a-zA-Z)]+)").First().Groups.Last().Value;
                 Logger.Log($"Event Name: {eventName}");
@@ -76,13 +113,12 @@ namespace Pecuniary.Transaction.Events
                 dynamic request = JsonConvert.DeserializeObject(message, Type.GetType(eventName));
                 Logger.Log($"Event Id: {request.Id}");
 
-                // Get the domain model name by parsing the first word in the event name
-                var model = Regex.Matches(eventName, @"([A-Z][a-z]+)").Select(m => m.Value).First().ToLower();
-                Logger.Log($"Event Model: {model}");
+                // Use the domain model name (by parsing the first word in the event name) as the index
+                var index = Regex.Matches(eventName, @"([A-Z][a-z]+)").Select(m => m.Value).First().ToLower();
+                Logger.Log($"Event Index: {index}");
 
-                Logger.Log($"Sending event to ElasticSearch");
-
-                return await _repository.AddOrUpdateAsync(message, model, request.Id.ToString());
+                Logger.Log($"Sending document {request.Id} to ElasticSearch {ElasticSearchDomain}");
+                return await _repository.AddAsync(ElasticSearchDomain, index, request.Id.ToString(), message);
             }
         }
     }
