@@ -65,7 +65,7 @@ dotnet-lambda deploy-serverless `
     --template $samTemplate `
     --region us-west-2 `
     --s3-prefix $developerPrefix- `
-    --s3-bucket pecuniary-deployment-artifacts
+    --s3-bucket pecuniary1-deployment-artifacts
 
 # Get the API Gateway Base URL
 $stack = aws cloudformation describe-stacks --stack-name $developerPrefix-pecuniary-transactionquery-stack | ConvertFrom-Json
