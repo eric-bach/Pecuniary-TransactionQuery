@@ -20,7 +20,6 @@ namespace Pecuniary.Transaction.Events
 {
     public class Function
     {
-        private static readonly string ElasticSearchDomain = Environment.GetEnvironmentVariable("ElasticSearchDomain");
         private readonly TransactionQueryService _transactionQueryService;
 
         public Function()
@@ -33,7 +32,8 @@ namespace Pecuniary.Transaction.Events
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IReadRepository<TransactionViewModel>, ElasticSearchRepository<TransactionViewModel>>();
+            serviceCollection.AddScoped<IReadRepository<TransactionViewModel>>(r =>
+                new ElasticSearchRepository<TransactionViewModel>(Environment.GetEnvironmentVariable("ElasticSearchDomain")));
             serviceCollection.AddScoped<TransactionQueryService>();
         }
 
@@ -97,8 +97,8 @@ namespace Pecuniary.Transaction.Events
                 };
                 Logger.Log($"Partial Document: {JsonConvert.SerializeObject(data)}");
 
-                Logger.Log($"Sending document {accountId} to ElasticSearch {ElasticSearchDomain}");
-                return await _repository.UpdateAsync(ElasticSearchDomain, index, accountId, JsonConvert.SerializeObject(data));
+                Logger.Log($"Sending document {accountId} to ElasticSearch");
+                return await _repository.UpdateAsync(index, accountId, JsonConvert.SerializeObject(data));
             }
 
             public async Task<ElasticSearchResponse> AddTransactionModel(string message)
@@ -117,8 +117,8 @@ namespace Pecuniary.Transaction.Events
                 var index = Regex.Matches(eventName, @"([A-Z][a-z]+)").Select(m => m.Value).First().ToLower();
                 Logger.Log($"Event Index: {index}");
 
-                Logger.Log($"Sending document {request.Id} to ElasticSearch {ElasticSearchDomain}");
-                return await _repository.AddAsync(ElasticSearchDomain, index, request.Id.ToString(), message);
+                Logger.Log($"Sending document {request.Id} to ElasticSearch");
+                return await _repository.AddAsync(index, request.Id.ToString(), message);
             }
         }
     }

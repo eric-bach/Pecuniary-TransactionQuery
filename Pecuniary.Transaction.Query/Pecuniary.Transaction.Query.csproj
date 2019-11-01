@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="3.1.0" />
-    <PackageReference Include="EricBach.CQRS.QueryRepository" Version="1.0.1" />
+    <PackageReference Include="EricBach.CQRS.QueryRepository" Version="1.0.5" />
     <PackageReference Include="EricBach.LambdaLogger" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
