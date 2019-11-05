@@ -5,10 +5,8 @@ param (
 )
 
 $environment = Get-Content 'developers.json' | Out-String | ConvertFrom-Json
-$stageEnvironment = Get-Content 'stage.json' | Out-String | ConvertFrom-Json
 
 $config = $environment.$configName
-$stageConfig = $stageEnvironment.Parameters
 
 $developerPrefix = $config.Prefix
 
