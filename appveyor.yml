@@ -17,6 +17,13 @@ init:
 
 clone_depth: 1
 
+environment:
+  AWS_ACCESS_CLIENT_ID: 
+    secure: 7mjagrvKpawI4d3QxIUa6fXlvxQm6C3d3DMI7S2WGlY=
+  AWS_SECRET_ACCESS_KEY:
+    secure: EPjzIETUdn275EWUFFOADjM3De/DpJ1gdVINaJa2by4XHeXkOTrqwHtl60FG+SF4
+  AWS_REGION: us-west-2    
+
 # Build configuration
 
 configuration: Release
@@ -43,6 +50,7 @@ test_script:
     -oldStyle
     -filter:"+[Pecuniary.Transaction.Query*]* -[Pecuniary.Transaction.Tests*]*"
     -register:user
+    -returntargetcode
   - codecov -f "coverage.xml"
 
 # Artifacts configuration
@@ -54,4 +62,19 @@ artifacts:
 
 # Deployment configuration
 
-deploy: off
+before_deploy:
+  - ps: Write-Host "Installing AWS CLI..."
+  - ps: $msiPath = "$($env:USERPROFILE)\AWSCLI64.msi"
+  - ps: (New-Object Net.WebClient).DownloadFile('https://s3.amazonaws.com/aws-cli/AWSCLI64.msi', $msiPath)
+  - ps: cmd /c start /wait msiexec /i $msiPath /quiet
+  - ps: del $msiPath
+  - cmd: aws --version
+
+deploy_script:
+  - ps: Write-Host "Installing AWS extensions for dotnet CLI..."
+  - cmd: dotnet tool install -g Amazon.Lambda.Tools
+  - cmd: aws configure set aws_access_key_id %AWS_ACCESS_CLIENT_ID%
+  - cmd: aws configure set aws_secret_access_key %AWS_SECRET_ACCESS_KEY%
+  - cmd: aws configure set region $AWS_REGION%
+  - ps: Write-Host "Execute deploy script..."
+  - ps: . .\deploy.ps1
