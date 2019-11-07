@@ -62,14 +62,6 @@ artifacts:
 
 # Deployment configuration
 
-before_deploy:
-  - ps: Write-Host "Installing AWS CLI..."
-  - ps: $msiPath = "$($env:USERPROFILE)\AWSCLI64.msi"
-  - ps: (New-Object Net.WebClient).DownloadFile('https://s3.amazonaws.com/aws-cli/AWSCLI64.msi', $msiPath)
-  - ps: cmd /c start /wait msiexec /i $msiPath /quiet
-  - ps: del $msiPath
-  - cmd: aws --version
-
 deploy_script:
   - ps: Write-Host "Installing AWS extensions for dotnet CLI..."
   - cmd: dotnet tool install -g Amazon.Lambda.Tools

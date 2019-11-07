@@ -47,7 +47,7 @@ Resources:
       FunctionName: pecuniary-TransactionEvent
       Handler: Pecuniary.Transaction.Events::Pecuniary.Transaction.Events.Function::TransactionEventHandlerAsync
       Runtime: dotnetcore2.1
-      CodeUri: Pecuniary.Transaction.Events/bin/Debug/netcoreapp2.1/publish
+      CodeUri: Pecuniary.Transaction.Events/bin/Release/netcoreapp2.1/publish
       MemorySize: 384
       ReservedConcurrentExecutions: 1
       Environment:
@@ -73,7 +73,7 @@ Resources:
       FunctionName: pecuniary-TransactionQuery
       Handler: Pecuniary.Transaction.Query::Pecuniary.Transaction.Query.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnetcore2.1
-      CodeUri: Pecuniary.Transaction.Query/bin/Debug/netcoreapp2.1/publish
+      CodeUri: Pecuniary.Transaction.Query/bin/Release/netcoreapp2.1/publish
       MemorySize: 384
       Environment:
         Variables:
