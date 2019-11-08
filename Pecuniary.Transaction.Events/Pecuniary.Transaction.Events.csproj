@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Ama.RestClient" Version="1.5.2" />
     <PackageReference Include="Amazon.Lambda.Core" Version="1.1.0" />
-    <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.6.0" />
+    <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.7.0" />
     <PackageReference Include="Amazon.Lambda.SNSEvents" Version="1.1.0" />
     <PackageReference Include="EricBach.CQRS.QueryRepository" Version="1.0.5" />
     <PackageReference Include="EricBach.LambdaLogger" Version="1.0.0" />
