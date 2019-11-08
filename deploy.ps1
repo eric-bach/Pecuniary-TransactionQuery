@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$false, HelpMessage="Enter your config name defined in developers.json: ")][string]$configName
+    [Parameter(Mandatory=$false, HelpMessage="Enter your config name defined in developers.json: ")][string]$configName,
+    [switch]$skipBuild
 )
 
 $environment = Get-Content 'developers.json' | Out-String | ConvertFrom-Json
@@ -32,7 +33,10 @@ if ($config.Prefix)
 
     Write-Host "Press [enter] to continue deploying stack to AWS (Ctrl+C to exit)" -NoNewline -ForegroundColor Green
     Read-Host
+}
 
+if (!$skipBuild)
+{
     Write-Host "`n`nRestoring projects..." -ForegroundColor Cyan
 
     dotnet restore

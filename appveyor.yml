@@ -69,4 +69,4 @@ deploy_script:
   - cmd: aws configure set aws_secret_access_key %AWS_SECRET_ACCESS_KEY%
   - cmd: aws configure set region $AWS_REGION%
   - ps: Write-Host "Execute deploy script..."
-  - ps: . .\deploy.ps1
+  - ps: . .\deploy.ps1 -skipBuild
