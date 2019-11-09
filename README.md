@@ -6,9 +6,10 @@
 
 Pipeline | Build Status
 -|-
-Unit tests | [![Build status](https://ci.appveyor.com/api/projects/status/3ke306xih29xssnu?svg=true)](https://ci.appveyor.com/project/eric-bach/pecuniary-transactionquery)
-Code coverage | [![codecov](https://codecov.io/gh/eric-bach/Pecuniary-TransactionQuery/branch/master/graph/badge.svg)](https://codecov.io/gh/eric-bach/Pecuniary-TransactionQuery)
-Code review | [![CodeFactor](https://www.codefactor.io/repository/github/eric-bach/pecuniary-TransactionQuery/badge)](https://www.codefactor.io/repository/github/eric-bach/pecuniary-transactionquery)
+Build | [![Build status](https://ci.appveyor.com/api/projects/status/3ke306xih29xssnu?svg=true)](https://ci.appveyor.com/project/eric-bach/pecuniary-transactionquery)
+Unit Tests | ![AppVeyor tests](https://img.shields.io/appveyor/tests/eric-bach/Pecuniary-TransactionQuery)
+Code Coverage | [![codecov](https://codecov.io/gh/eric-bach/Pecuniary-TransactionQuery/branch/master/graph/badge.svg)](https://codecov.io/gh/eric-bach/Pecuniary-TransactionQuery)
+Code Quality | [![CodeFactor](https://www.codefactor.io/repository/github/eric-bach/pecuniary-TransactionQuery/badge)](https://www.codefactor.io/repository/github/eric-bach/pecuniary-transactionquery)
 
 ## Packages
 
