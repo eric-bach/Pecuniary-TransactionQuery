@@ -7,9 +7,15 @@ Parameters:
     Description: Application name
     Type: String
     Default: Pecuniary
-  PecuniaryStackParameter:
+  PecuniaryAuthStackParameter:
     Type: String
-    Default: pecuniary-stack
+    Default: pecuniary-auth-stack
+  PecuniaryDbStackParameter:
+    Type: String
+    Default: pecuniary-db-stack
+  PecuniaryTopicsStackParameter:
+    Type: String
+    Default: pecuniary-topics-stack
 
 Mappings:
   Constants:
@@ -35,7 +41,7 @@ Resources:
                     - arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
                     - UserPoolId:
                         Fn::ImportValue:
-                          !Sub ${PecuniaryStackParameter}-PecuniaryCognitoUserPoolId
+                          !Sub ${PecuniaryAuthStackParameter}-PecuniaryCognitoUserPoolId
             Identity:
               Header: Authorization
       Tags:
@@ -54,14 +60,14 @@ Resources:
         Variables:
           ElasticSearchDomain:
             Fn::ImportValue:
-              !Sub ${PecuniaryStackParameter}-PecuniaryESReadStoreDomain
+              !Sub ${PecuniaryDbStackParameter}-PecuniaryESReadStoreDomain
       Events:
         TransactionCreatedEventTopic:
           Type: SNS
           Properties:
             Topic:
               Fn::ImportValue:
-                !Sub ${PecuniaryStackParameter}-PecuniaryTransactionCreatedEventTopicArn
+                !Sub ${PecuniaryTopicsStackParameter}-PecuniaryTransactionCreatedEventTopicArn
       Policies: 
         - AmazonSNSReadOnlyAccess
       Tags:
@@ -79,7 +85,7 @@ Resources:
         Variables:
           ElasticSearchDomain:
             Fn::ImportValue:
-              !Sub ${PecuniaryStackParameter}-PecuniaryESReadStoreDomain
+              !Sub ${PecuniaryDbStackParameter}-PecuniaryESReadStoreDomain
       Events:
         GetValues:
           Type: Api
@@ -94,7 +100,7 @@ Resources:
 
 Outputs:
   PecuniaryApiGatewayBaseUrl:
-    Description: Base Url of the Pecuniary API Gateway
+    Description: Base Url of the Pecuniary Transaction Query API Gateway
     Value: !Ref PecuniaryWebApi
     Export:
       Name: !Sub ${AWS::StackName}-PecuniaryApiGatewayBaseUrl
